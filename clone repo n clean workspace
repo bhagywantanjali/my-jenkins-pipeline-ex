@@ -1,0 +1,21 @@
+pipeline {
+    agent {
+			label {
+					label 'built-in'
+					customWorkspace '/mnt/project'
+			}
+	}
+    
+    environment {
+                    url = "https://github.com/bhagywantanjali/repo-1.git"
+                    
+    }
+    stages {
+        stage ("clone project") {
+            steps {
+                        sh "rm -rf *"
+                        sh "git clone $url"
+            }
+        }
+    }
+}
