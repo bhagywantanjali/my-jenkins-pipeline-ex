@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir() // Clean up the workspace
+            }
+        }
+        
+        stage('Git Clone') {
+            steps {
+                git branch: '2024-Q2', url: 'https://github.com/bhagywantanjali/june-2024.git'
+            }
+        }
+        
+        stage('Cleanup Docker Container') {
+            steps {
+                
+                    // Stop and remove the existing Docker container if it exists
+                    sh 'docker rm -f my-server '
+                
+            }
+        }
+        
+        stage('Install HTTPD Image') {
+            steps {
+                sh 'docker run -dp 80:80 --name my-server httpd'
+            }
+        }
+        
+        stage('Copy Index.html') {
+            steps {
+                sh 'chmod -R 777 index.html'
+                sh 'docker cp index.html my-server:/usr/local/apache2/htdocs'
+            }
+        }
+    }
+}
