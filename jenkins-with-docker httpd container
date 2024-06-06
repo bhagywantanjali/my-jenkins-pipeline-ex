@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage ('git-clone') {
+            steps {
+                sh 'rm -rf *'
+                git branch: '2024-Q1', url: 'https://github.com/bhagywantanjali/june-2024.git'
+            }
+        }
+        
+        stage ('cleanup-docker-container') {
+            steps {
+               sh 'docker stop my-server'
+               sh 'docker rm my-server'
+            }
+        }
+        
+        stage ('install-image-httpd') {
+            steps {
+                sh 'docker run -dp 80:80 --name my-server httpd'
+            }
+        }
+        stage ('copy-index.html') {
+            steps {
+                sh 'chmod -R 777 index.html'
+                sh 'docker cp index.html my-server:/usr/local/apache2/htdocs'
+            }
+        }
+    }
+}
