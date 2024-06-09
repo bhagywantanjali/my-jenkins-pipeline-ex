@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+    
+    environment {
+        CUSTOM_WORKSPACE = '/mnt/project'
+        GIT_REPO_URL = 'https://github.com/bhagywantanjali/june-2024.git'
+    }
+
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                dir("${env.CUSTOM_WORKSPACE}") {
+                    deleteDir() 
+                }
+            }
+        } 
+
+        stage('Git Clone 2024-Q1') {
+            steps {
+                dir("${env.CUSTOM_WORKSPACE}/2024-Q1") {
+                    git branch: '2024-Q1', url: "${env.GIT_REPO_URL}"
+                }
+            }
+        }
+        
+        stage('Setup 2024-Q1') {
+            steps {
+                dir("${env.CUSTOM_WORKSPACE}/2024-Q1") {
+                    sh 'docker rm -f my-server-Q1 || true'
+                    sh 'docker run -dp 80:80 --name my-server-Q1 httpd'
+                    sh 'chmod -R 777 index.html'
+                    sh 'docker cp index.html my-server-Q1:/usr/local/apache2/htdocs/'
+                }
+            }
+        }
+
+        stage('Git Clone 2024-Q2') {
+            steps {
+                dir("${env.CUSTOM_WORKSPACE}/2024-Q2") {
+                    git branch: '2024-Q2', url: "${env.GIT_REPO_URL}"
+                }
+            }
+        }    
+
+        stage('Setup 2024-Q2') {
+            steps { 
+                dir("${env.CUSTOM_WORKSPACE}/2024-Q2") {
+                    sh 'docker rm -f my-server-Q2 || true'
+                    sh 'docker run -dp 90:80 --name my-server-Q2 httpd'
+                    sh 'chmod -R 777 index.html'
+                    sh 'docker cp index.html my-server-Q2:/usr/local/apache2/htdocs/'
+                }
+            }
+        }
+
+        stage('Git Clone and Setup 2024-Q3') {
+            steps {
+                dir("${env.CUSTOM_WORKSPACE}/2024-Q3") {
+                    git branch: '2024-Q3', url: "${env.GIT_REPO_URL}"
+                    sh 'docker rm -f my-server-Q3 || true'
+                    sh 'docker run -dp 8081:80 --name my-server-Q3 httpd'
+                    sh 'chmod -R 777 index.html'
+                    sh 'docker cp index.html my-server-Q3:/usr/local/apache2/htdocs/'
+                }
+            }
+        }
+    }
+}
